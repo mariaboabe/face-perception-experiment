@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Face Perception Study</title>
+  <script src="https://unpkg.com/jspsych@7.3.3/dist/jspsych.js"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.2.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.2.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-survey-multi-choice@1.2.0"></script>
+  <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" />
+  <style>
+    body {background-color: #f8f8f8;}
+    img {max-height: 500px;}
+  </style>
+</head>
+<body></body>
+
+<script>
+  // --------------------------
+  // Initialize jsPsych
+  // --------------------------
+  const jsPsych = initJsPsych({
+    on_finish: function() {
+      jsPsych.data.get().localSave('csv', 'face_perception_data.csv');
+    }
+  });
+
+  // --------------------------
+  // Generate Participant ID
+  // --------------------------
+  const participant_id = 'P_' + Math.floor(100000 + Math.random() * 900000);
+  jsPsych.data.addProperties({participant_id: participant_id});
+
+  // --------------------------
+  // Define stimuli (first 50)
+  // --------------------------
+  const image_list = [];
+  for (let i = 0; i < 50; i++) {
+    const num = i.toString().padStart(2, '0');
+    image_list.push(`stimuli/Ex1A/a${num}.jpg`);
+  }
+
+  // --------------------------
+  // Welcome / Instructions
+  // --------------------------
+  const welcome = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <h2>Welcome to the Face Perception Study</h2>
+      <p>You will see a series of face images.</p>
+      <p>For each image, please rate:</p>
+      <ul style="text-align:left; display:inline-block;">
+        <li>The perceived <b>Age</b></li>
+        <li>The perceived <b>Gender</b></li>
+        <li>The perceived <b>Emotion</b></li>
+      </ul>
+      <p>Each image will appear for <b>5 seconds</b>, and each question will have <b>4 seconds</b> to answer.</p>
+      <p>Please respond as accurately as possible.</p>
+      <p>Your Participant ID: <b>${participant_id}</b></p>
+    `,
+    choices: ['Start']
+  };
+
+  // --------------------------
+  // Image display trial
+  // --------------------------
+  const show_image = {
+    type: jsPsychImageKeyboardResponse,
+    stimulus: jsPsych.timelineVariable('image'),
+    choices: "NO_KEYS",
+    trial_duration: 5000
+  };
+
+  // --------------------------
+  // Age question
+  // --------------------------
+  const age_q = {
+    type: jsPsychSurveyMultiChoice,
+    questions: [{
+      prompt: "Rate the perceived age:",
+      options: ["Child (0–12)", "Teenager (13–19)", "Young Adult (20–35)", "Middle-aged (36–60)", "Elderly (60+)"],
+      required: true
+    }],
+    trial_duration: 4000,
+    data: {question_type: "age"}
+  };
+
+  // --------------------------
+  // Gender question
+  // --------------------------
+  const gender_q = {
+    type: jsPsychSurveyMultiChoice,
+    questions: [{
+      prompt: "Rate the perceived gender:",
+      options: ["Male", "Female", "Neutral"],
+      required: true
+    }],
+    trial_duration: 4000,
+    data: {question_type: "gender"}
+  };
+
+  // --------------------------
+  // Emotion question
+  // --------------------------
+  const emotion_q = {
+    type: jsPsychSurveyMultiChoice,
+    questions: [{
+      prompt: "Rate the perceived emotion:",
+      options: ["Happiness", "Surprise", "Anger", "Sadness", "Fear", "Disgust", "Neutral expression"],
+      required: true
+    }],
+    trial_duration: 4000,
+    data: {question_type: "emotion"}
+  };
+
+  // --------------------------
+  // Combine into one trial sequence
+  // --------------------------
+  const trial_procedure = {
+    timeline: [show_image, age_q, gender_q, emotion_q],
+    timeline_variables: image_list.map(img => ({image: img}))
+  };
+
+  // --------------------------
+  // End message
+  // --------------------------
+  const end_message = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <h2>Your answers have been recorded.</h2>
+      <p>Thank you for participating!</p>
+      <p>You may now download your data file.</p>
+    `,
+    choices: ['Download Data']
+  };
+
+  // --------------------------
+  // Run the experiment
+  // --------------------------
+  jsPsych.run([welcome, trial_procedure, end_message]);
+</script>
+</html>
