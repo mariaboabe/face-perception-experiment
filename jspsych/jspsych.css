@@ -1,0 +1,16 @@
+/* jsPsych CSS */
+.jspsych-content {
+  margin-top: 50px;
+  text-align: center;
+}
+.jspsych-btn {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px;
+  margin: 5px;
+}
+/* Add more styles here if needed, but this is the minimum to function. */
